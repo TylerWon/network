@@ -70,14 +70,14 @@ def register(request):
 def new_post(request):
     # Check request method was POST, reject otherwise
     if request.method != "POST":
-        return JsonResponse({"error": "POST request required"}, status=400)
+        return JsonResponse({"message": "POST request required"}, status=400)
     
     data = json.loads(request.body)
 
     # Check content is non-empty, reject otherwise
     content = data.get("content").strip()
     if content == "":
-        return JsonResponse({"error": "Content of post cannot be empty"}, status=400)
+        return JsonResponse({"message": "Content of post cannot be empty"}, status=400)
 
     user = request.user
 

@@ -5,10 +5,10 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 })
 
-const csrftoken = getCookie('csrftoken');
+const csrftoken = getCookie("csrftoken");
 
 /**
- * Get a cookie (from: https://docs.djangoproject.com/en/3.2/ref/csrf/)
+ * Get a cookie (implementation from: https://docs.djangoproject.com/en/3.2/ref/csrf/)
  * @param {string} name name of the cookie
  * @returns the cookie
  */
@@ -51,6 +51,7 @@ function create_post() {
 
     // Log response to console
     .then(function(response) {
+        window.alert(response.message);
         console.log(response);
     })
 
@@ -62,7 +63,6 @@ function create_post() {
     // Catch any errors and log them to console
     .catch(function(err) {
         console.log(err);
-        window.alert(err.message);
     })
 
     // Prevent default submission
