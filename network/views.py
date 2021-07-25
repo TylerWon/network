@@ -9,11 +9,11 @@ from django.urls import reverse
 
 from .models import User, Post, Like
 
-# Render the index page
+# Renders the index page
 def index(request):
     return render(request, "network/index.html")
 
-# Render the login page
+# Renders the login page
 def login_view(request):
     if request.method == "POST":
 
@@ -33,12 +33,12 @@ def login_view(request):
     else:
         return render(request, "network/login.html")
 
-# Log a user out
+# Logs a user out
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
-# Render the register page
+# Renders the register page
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -65,7 +65,7 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
-# API Route: create a new post
+# API Route: creates a new post
 @login_required
 def new_post(request):
     # Check request method was POST, reject otherwise
