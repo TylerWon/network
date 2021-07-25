@@ -41,7 +41,6 @@ function create_post() {
         },
         body: JSON.stringify({
             content: content
-            
         })
     })
 
@@ -69,5 +68,3 @@ function create_post() {
     // Prevent default submission
     return false;
 }
-
-
