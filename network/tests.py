@@ -3,7 +3,9 @@ from django.test import Client, TestCase
 from .models import User, Post, Like
 
 # Create your tests here.
-class NetworkTest(TestCase):
+
+# Test class for models
+class ModelTest(TestCase):
     # Setup test database with data
     def setUp(self):
         user1 = User.objects.create(username="user1", password="user1", email="user1@gmail.com")
@@ -43,5 +45,35 @@ class NetworkTest(TestCase):
         self.assertEquals(like.liker, user)
         self.assertEquals(like.post, post)
 
-    def test_index(self):
+# Test class for client
+class ClientTest(TestCase):
 
+    client = Client()
+
+    # Test that index view works
+    def test_index(self):
+        pass
+
+    # Test that logout view works
+    def test_logout_view(self):
+        pass
+
+    # Test that login view works
+    def test_login_view(self):
+        pass
+
+    # Test that register view works
+    def test_register(self):
+        pass
+
+    # Test that a new post is created successfully
+    def test_new_post_success(self):
+        pass
+
+    # Test that a new post is not created (no content)
+    def test_new_post_fail_empty(self):
+        pass
+
+    # Test that a new post is not created (not a POST request)
+    def test_new_post_fail_bad_request(self):
+        pass
