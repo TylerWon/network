@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import Client, TestCase
 
 from .models import User, Post, Like
 
@@ -42,3 +42,6 @@ class NetworkTest(TestCase):
 
         self.assertEquals(like.liker, user)
         self.assertEquals(like.post, post)
+
+    def test_index(self):
+
