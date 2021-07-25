@@ -1,5 +1,12 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+        <div id="new-post-container">
+            <form id="new-post-form">
+                <textarea id="new-post-content" class="form-control"></textarea>
+                <input class="btn btn-primary" type="submit">
+            </form>
+        </div>
 {% endblock %}
