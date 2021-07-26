@@ -163,19 +163,8 @@ class ClientTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-    # New Post View Tests
+    # Posts View Tests
     # ------------------------------------------------------------------------------------------------------------------------------------------------
-    # Test that a new post is not created when the request method is POST
-    def test_new_post_fail_incorrect_request_method(self):
-        user = User.objects.get(username="user1")
-        self.client.force_login(user)
-        
-        response = self.client.get("/posts")
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["message"], "POST request required.")
-
-    
     # Test that a new post is not created when the post is empty
     def test_new_post_fail_empty(self):
         user = User.objects.get(username="user1")

@@ -65,23 +65,29 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
-# API Route: creates a new post
-@login_required
-def new_post(request):
-    # Check request method was POST, reject otherwise
-    if request.method != "POST":
-        return JsonResponse({"message": "POST request required."}, status=400)
+# API Route: POST = creates a new post, GET = retrieves all posts
+def posts(request):
+    # Create a new post
+    if request.method == "POST" and request.user.is_authenticated:
+        data = json.loads(request.body)
+
+        # Check content is non-empty, reject otherwise
+        content = data.get("content").strip()
+        if content == "":
+            return JsonResponse({"message": "Post cannot be empty."}, status=400)
+
+        user = request.user
+
+        post = Post(poster=user, content=content)
+        post.save()
+
+        return JsonResponse({"message": "Post created successfully."}, status=201)
     
-    data = json.loads(request.body)
-
-    # Check content is non-empty, reject otherwise
-    content = data.get("content").strip()
-    if content == "":
-        return JsonResponse({"message": "Post cannot be empty."}, status=400)
-
-    user = request.user
-
-    post = Post(poster=user, content=content)
-    post.save()
-
-    return JsonResponse({"message": "Post created successfully."}, status=201)
+    # Retrieve all posts
+    elif request.method == "GET":
+        posts = Post.objects.all().order_by("-timestamp")
+        return JsonResponse([post.serialize() for post in posts], safe=False)
+    
+    # Do nothing 
+    else:
+        return JsonResponse({"message": "GET or POST request required."}, status=400)

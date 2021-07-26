@@ -11,6 +11,13 @@ class Post(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now=True)
 
+    def serialize(self):
+        return {
+            "poster": self.poster.username,
+            "content": self.content,
+            "timestamp": self.timestamp
+        }
+
 # Represents data for a Like in the Like table of the database
 class Like(models.Model):
     liker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
