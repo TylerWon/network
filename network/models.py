@@ -15,7 +15,7 @@ class Post(models.Model):
         return {
             "poster": self.poster.username,
             "content": self.content,
-            "timestamp": self.timestamp
+            "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
         }
 
 # Represents data for a Like in the Like table of the database

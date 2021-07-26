@@ -86,7 +86,7 @@ def posts(request):
     # Retrieve all posts
     elif request.method == "GET":
         posts = Post.objects.all().order_by("-timestamp")
-        return JsonResponse([post.serialize() for post in posts], safe=False)
+        return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
     
     # Do nothing 
     else:

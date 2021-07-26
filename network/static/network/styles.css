@@ -1,4 +1,4 @@
-all-posts-page-subelement-container, #new-post-container {
+all-posts-page-subelement-container, .post-container, #new-post-container {
   margin: 15px;
   padding: 20px;
   border: 1px solid lightgrey;
@@ -9,11 +9,11 @@ all-posts-page-subelement-container, #new-post-container {
   margin: 5px 0px;
 }
 
-#post-poster {
+.post-poster {
   margin-bottom: 20px;
 }
 
-#post-timestamp {
+.post-timestamp {
   font-weight: 100;
 }
 
