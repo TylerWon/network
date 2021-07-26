@@ -184,3 +184,31 @@ class ClientTest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["message"], "Post created successfully.")
+
+    # Test that zero posts are retrieved when there are no posts
+    def test_get_posts_empty(self):
+        response = self.client.get("/posts")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 0)
+
+    # Test that posts are retrieved when there are posts
+    def test_get_posts_many(self):
+        user = User.objects.get(username="user1")
+        Post.objects.create(poster=user, content="This is my first post!")
+        Post.objects.create(poster=user, content="This is my second post!")
+        
+        response = self.client.get("/posts")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+
+    # Test that nothing happens when the request method is PUT
+    def test_posts_invalid_request_method(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+        
+        response = self.client.put("/posts")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET or POST request required.")
