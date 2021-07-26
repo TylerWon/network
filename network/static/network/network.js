@@ -56,15 +56,13 @@ function create_post() {
         console.log(response);
     })
 
-    // Reset textarea
-    .then(function() {
-        document.querySelector("#new-post-content").value = "";
-    })
-
     // Catch any errors and log them to console
     .catch(function(err) {
         console.log(err);
     })
+
+    // Reset textarea
+    document.querySelector("#new-post-content").value = "";
 
     // Prevent default submission
     return false;

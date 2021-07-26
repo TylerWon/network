@@ -1,14 +1,24 @@
-#new-post-container {
-    margin: 15px;
-    padding: 20px;
-    border: 1px solid lightgrey;
-    border-radius: 5px;
+all-posts-page-subelement-container, #new-post-container {
+  margin: 15px;
+  padding: 20px;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
 }
 
 #new-post-content {
-    margin: 5px 0px;
+  margin: 5px 0px;
+}
+
+#post-poster {
+  margin-bottom: 20px;
+}
+
+#post-timestamp {
+  font-weight: 100;
 }
 
 .section-title {
-    margin: 10px;
+  margin: 10px;
 }
+
+/*# sourceMappingURL=styles.css.map */
