@@ -1,10 +1,22 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // Show all posts page only initially
+    document.querySelector("#all-posts-page").style.display = "block";
+    document.querySelector("#profile-page").style.display = "none";
+
+    // Show profile page when link is clicked
+    if (document.querySelector("#profile-page-link") != null) {
+        username = document.querySelector("#profile-page-link").innerHTML;
+        document.querySelector("#profile-page-link").onclick = function()  {
+            show_profile_page(username);
+        }
+    }
+
     // Create a new post when user submits new post form
     if (document.querySelector("#new-post-form") != null) {
         document.querySelector("#new-post-form").onsubmit = create_post;
     }
 
-    show_posts();
+    show_posts("/posts");
 })
 
 const csrftoken = getCookie("csrftoken");
@@ -27,6 +39,18 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+/**
+ * Displays a user's profile page
+ * @param {string} username the user's username 
+ */
+function show_profile_page(username) {
+    // Show profile page only
+    document.querySelector("#all-posts-page").style.display = "none";
+    document.querySelector("#profile-page").style.display = "block";
+
+    show_posts(`/posts/${username}`);
 }
 
 /**
@@ -60,7 +84,7 @@ function create_post() {
 
     // Load posts again so new post appears
     .then(function() {
-        show_posts();
+        show_posts("/posts");
     })
 
     // Catch any errors and log them to console
@@ -76,11 +100,12 @@ function create_post() {
 }
 
 /**
- * Displays posts on "all posts" page
+ * Displays posts on a page
+ * @param {string} route the API route to use
  */
-function show_posts() {
+function show_posts(route) {
     // Retrieve posts
-    fetch("/posts", {
+    fetch(route, {
         method: "GET"
     })
 
@@ -97,7 +122,7 @@ function show_posts() {
 
     // Clear posts that are being displayed then iterate through posts, adding them to the page
     .then(function(posts) {
-        document.querySelector("#posts-container").innerHTML = "";
+        document.querySelector("#posts").innerHTML = "";
         posts.forEach(function(post) {
             show_post(post);
         })
@@ -110,7 +135,7 @@ function show_posts() {
 }
 
 /**
- * Displays a post on the "all posts" page
+ * Displays a post on a page
  * @param {object} post object that contains info about a post
  */
 function show_post(post) {
@@ -123,5 +148,5 @@ function show_post(post) {
         <p class="post-timestamp">${post.timestamp}</p>
     `;
 
-    document.querySelector("#posts-container").append(post_div);       
+    document.querySelector("#posts").append(post_div);       
 }

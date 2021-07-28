@@ -105,7 +105,3 @@ def user_posts(request, username):
     
     posts = Post.objects.filter(poster=user).order_by("-timestamp")
     return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
-
-# API route: GET = retrieves all posts created by a the people a user follows
-def following_posts(request, username):
-    pass

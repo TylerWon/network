@@ -13,6 +13,10 @@ all-posts-page-subelement-container {
     margin: 5px 0px;
 }
 
+#profile-page-link {
+    font-weight: 600;
+}
+
 .post-container {
     @extend all-posts-page-subelement-container;
 }

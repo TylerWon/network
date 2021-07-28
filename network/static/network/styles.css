@@ -9,6 +9,10 @@ all-posts-page-subelement-container, .post-container, #new-post-container {
   margin: 5px 0px;
 }
 
+#profile-page-link {
+  font-weight: 600;
+}
+
 .post-poster {
   margin-bottom: 20px;
 }

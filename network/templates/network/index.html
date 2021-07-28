@@ -6,17 +6,26 @@
 {% endblock %}
 
 {% block body %}
-    <h1 class="section-title">All Posts</h1>
+    <div id="all-posts-page">
+        <h1 class="section-title">All Posts</h1>
 
-    {% if user.is_authenticated %}
-        <div id="new-post-container">
-            <h4>New Post</h4>
-            <form id="new-post-form">
-                <textarea id="new-post-content" class="form-control"></textarea>
-                <input class="btn btn-primary" type="submit" value="Post">
-            </form>
-        </div>
-    {% endif %}
+        {% if user.is_authenticated %}
+            <div id="new-post-container">
+                <h4>New Post</h4>
+                <form id="new-post-form">
+                    <textarea id="new-post-content" class="form-control"></textarea>
+                    <input class="btn btn-primary" type="submit" value="Post">
+                </form>
+            </div>
+        {% endif %}
+    </div>
 
-    <div id="posts-container"></div>
+    <div id="profile-page">
+        {% if user.is_authenticated %}
+            <h1 class="section-title">{{ user.username }}</h1>
+        {% endif %}
+    </div>
+    
+
+    <div id="posts"></div>
 {% endblock %}
