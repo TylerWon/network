@@ -95,7 +95,7 @@ function show_posts() {
         return response;
     })
 
-    // Clear posts that are being displayed then iterate through posts, adding them to the "all posts" page
+    // Clear posts that are being displayed then iterate through posts, adding them to the page
     .then(function(posts) {
         document.querySelector("#posts-container").innerHTML = "";
         posts.forEach(function(post) {

@@ -54,7 +54,7 @@ class ClientTest(TestCase):
     def setUp(self):
         user1 = User.objects.create(username="user1", password="user1", email="user1@gmail.com")
 
-    # Index View Tests
+    # index View Tests
     # ------------------------------------------------------------------------------------------------------------------------------------------------
     # Test that index page renders
     def test_index(self):
@@ -62,7 +62,7 @@ class ClientTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    # Login View Tests
+    # login View Tests
     # ------------------------------------------------------------------------------------------------------------------------------------------------
     # Test that login page renders
     def test_login(self):
@@ -109,10 +109,10 @@ class ClientTest(TestCase):
 
         self.assertEquals(response.status_code, 200)
 
-    # Logout View Tests
+    # logout View Tests
     # ------------------------------------------------------------------------------------------------------------------------------------------------
     # Test that user is logged out
-    def test_logout_view(self):
+    def test_logout(self):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
@@ -120,7 +120,7 @@ class ClientTest(TestCase):
 
         self.assertEquals(response.status_code, 302)
 
-    # Register View Tests
+    # register View Tests
     # ------------------------------------------------------------------------------------------------------------------------------------------------
     # Test that register page renders
     def test_register(self):
@@ -163,10 +163,10 @@ class ClientTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-    # Posts View Tests
+    # posts View Tests
     # ------------------------------------------------------------------------------------------------------------------------------------------------
     # Test that a new post is not created when the post is empty
-    def test_new_post_fail_empty(self):
+    def test_posts_new_post_content_empty(self):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
         
@@ -176,7 +176,7 @@ class ClientTest(TestCase):
         self.assertEqual(response.json()["message"], "Post cannot be empty.")
 
     # Test that a new post is created successfully
-    def test_new_post_success(self):
+    def test_posts_new_post_success(self):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
         
@@ -186,14 +186,14 @@ class ClientTest(TestCase):
         self.assertEqual(response.json()["message"], "Post created successfully.")
 
     # Test that zero posts are retrieved when there are no posts
-    def test_get_posts_empty(self):
+    def test_posts_get_nothing(self):
         response = self.client.get("/posts")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 0)
 
     # Test that posts are retrieved when there are posts
-    def test_get_posts_many(self):
+    def test_posts_get_many(self):
         user = User.objects.get(username="user1")
         Post.objects.create(poster=user, content="This is my first post!")
         Post.objects.create(poster=user, content="This is my second post!")
@@ -212,3 +212,4 @@ class ClientTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET or POST request required.")
+

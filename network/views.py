@@ -91,3 +91,21 @@ def posts(request):
     # Do nothing 
     else:
         return JsonResponse({"message": "GET or POST request required."}, status=400)
+
+# API route: GET = retrieves all posts created by a user
+@login_required
+def user_posts(request, username):
+    if request.method != "GET":
+        return JsonResponse({"message": "GET request required."}, status=400)
+    
+    try:
+        user = User.objects.get(username=username)
+    except:
+        return JsonResponse({"message": "User does not exist."}, status=400) 
+    
+    posts = Post.objects.filter(poster=user).order_by("-timestamp")
+    return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
+
+# API route: GET = retrieves all posts created by a the people a user follows
+def following_posts(request, username):
+    pass
