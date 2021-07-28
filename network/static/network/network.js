@@ -58,6 +58,11 @@ function create_post() {
         console.log(response);
     })
 
+    // Load posts again so new post appears
+    .then(function() {
+        show_posts();
+    })
+
     // Catch any errors and log them to console
     .catch(function(err) {
         console.log(err);
@@ -65,9 +70,6 @@ function create_post() {
 
     // Reset textarea
     document.querySelector("#new-post-content").value = "";
-
-    // Load posts again so new post appears
-    show_posts();
 
     // Prevent default submission
     return false;
@@ -93,8 +95,9 @@ function show_posts() {
         return response;
     })
 
-    // Iterate through posts, adding them to the "all posts" page
+    // Clear posts that are being displayed then iterate through posts, adding them to the "all posts" page
     .then(function(posts) {
+        document.querySelector("#posts-container").innerHTML = "";
         posts.forEach(function(post) {
             show_post(post);
         })
