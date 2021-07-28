@@ -213,3 +213,57 @@ class ClientTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET or POST request required.")
 
+    # user_posts View Tests
+    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # Test that nothing happens when request is POST
+    def test_user_posts_request_method_is_post(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.post("/posts/user1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+
+    # Test that nothing happens when request is PUT
+    def test_user_posts_request_method_is_put(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.put("/posts/user1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+
+    # Test that nothing happens when user does not exist
+    def test_user_posts_user_does_not_exist(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.get("/posts/user2")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "User does not exist.")
+
+    # Test that zero posts are retrieved when a user has no posts
+    def test_user_posts_get_nothing(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.get("/posts/user1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 0)
+
+    # Test that posts are retrieved when a user has posts
+    def test_user_posts_get_many(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        Post.objects.create(poster=user, content="This is my first post!")
+        Post.objects.create(poster=user, content="This is my second post!")
+
+        response = self.client.get("/posts/user1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
