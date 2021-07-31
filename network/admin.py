@@ -4,6 +4,7 @@ from .models import User, Post, Like
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ("username", "email")
+    filter_horizontal = ("followers", )
 
 class PostAdmin(admin.ModelAdmin):
     readonly_fields = ("timestamp",)

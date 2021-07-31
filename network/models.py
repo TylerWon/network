@@ -3,7 +3,15 @@ from django.db import models
 
 # Represents data for a User in the User table of the database
 class User(AbstractUser):
-    followers = models.ManyToManyField("User")
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="following")
+
+    def serialize(self):
+        return {
+            "username": self.username,
+            "email": self.email,
+            "followers": self.followers.count(),
+            "following": self.following.count()
+        }
 
 # Represents data for a Post in the Post table of the database
 class Post(models.Model):

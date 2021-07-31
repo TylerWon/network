@@ -264,6 +264,43 @@ class ClientTest(TestCase):
         Post.objects.create(poster=user, content="This is my second post!")
 
         response = self.client.get("/posts/user1")
+        data = response.json()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 2)
+        self.assertEqual(data[0]["poster"], "user1")
+        self.assertEqual(data[0]["content"], "This is my second post!")
+        self.assertEqual(data[1]["poster"], "user1")
+        self.assertEqual(data[1]["content"], "This is my first post!")
+    
+    # user View Tests
+    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # Test that nothing happens when request is POST
+    def test_user_request_method_is_post(self):
+        response = self.client.post("/user1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+
+    # Test that nothing happens when request is PUT
+    def test_user_request_method_is_put(self):
+        response = self.client.put("/user1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+
+    # Test that info about a user is retrieved
+    def test_user_get_info(self):
+        user1 = User.objects.get(username="user1")
+        user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
+        user1.followers.add(user2)
+        user2.followers.add(user1)
+
+        response = self.client.get("/user1")
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["username"], "user1")
+        self.assertEqual(data["email"], "user1@gmail.com")
+        self.assertEqual(data["followers"], 1)
+        self.assertEqual(data["following"], 1)
