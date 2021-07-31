@@ -289,12 +289,18 @@ class ClientTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET request required.")
 
+    # Test that nothing happens when user does not exist
+    def test_user_user_does_not_exist(self):
+        response = self.client.get("/user2")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "User does not exist.")
+
     # Test that info about a user is retrieved
     def test_user_get_info(self):
         user1 = User.objects.get(username="user1")
         user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
         user1.followers.add(user2)
-        user2.followers.add(user1)
 
         response = self.client.get("/user1")
         data = response.json()
@@ -303,4 +309,4 @@ class ClientTest(TestCase):
         self.assertEqual(data["username"], "user1")
         self.assertEqual(data["email"], "user1@gmail.com")
         self.assertEqual(data["followers"], 1)
-        self.assertEqual(data["following"], 1)
+        self.assertEqual(data["following"], 0)
