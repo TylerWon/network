@@ -105,3 +105,15 @@ def user_posts(request, username):
     
     posts = Post.objects.filter(poster=user).order_by("-timestamp")
     return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
+
+# API route: GET = retrieve info about a user
+def user(request, username):
+    if request.method != "GET":
+        return JsonResponse({"message": "GET request required."}, status=400)
+    
+    try:
+        user = User.objects.get(username=username)
+    except:
+        return JsonResponse({"message": "User does not exist."}, status=400) 
+    
+    return JsonResponse(user.serialize(), status=200, safe=False)

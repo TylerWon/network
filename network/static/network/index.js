@@ -50,6 +50,15 @@ function show_profile_page(username) {
     document.querySelector("#all-posts-page").style.display = "none";
     document.querySelector("#profile-page").style.display = "block";
 
+    // Create header that displays the user's username
+    const h1 = document.createElement("h1");
+    h1.innerHTML = `<h1 class="section-title">${username}</h1>`;
+    document.querySelector("#profile-page").append(h1);
+
+    // Show follower/following count
+
+
+    // Show posts created by the user
     show_posts(`/posts/${username}`);
 }
 
