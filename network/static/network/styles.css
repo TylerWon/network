@@ -1,8 +1,11 @@
-all-posts-page-subelement-container, .post-container, #new-post-container {
-  margin: 15px;
+grey-border, .post-container, #followers-and-following-container, #new-post-container {
   padding: 20px;
   border: 1px solid lightgrey;
+}
+
+#new-post-container {
   border-radius: 5px;
+  margin: 15px;
 }
 
 #new-post-content {
@@ -11,6 +14,29 @@ all-posts-page-subelement-container, .post-container, #new-post-container {
 
 #profile-page-link {
   font-weight: 600;
+}
+
+#followers-and-following-container {
+  border-radius: 10px;
+  margin-left: 25%;
+  margin-right: 25%;
+  overflow: hidden;
+}
+
+#followers-container {
+  float: left;
+  width: 50%;
+  border-right: 1px solid lightgrey;
+}
+
+#following-container {
+  float: right;
+  width: 50%;
+}
+
+.post-container {
+  border-radius: 5px;
+  margin: 15px;
 }
 
 .post-poster {
@@ -23,6 +49,14 @@ all-posts-page-subelement-container, .post-container, #new-post-container {
 
 .section-title {
   margin: 10px;
+}
+
+.followers-or-following-header {
+  text-align: center;
+}
+
+.followers-or-following-count {
+  text-align: center;
 }
 
 /*# sourceMappingURL=styles.css.map */

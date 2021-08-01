@@ -50,16 +50,79 @@ function show_profile_page(username) {
     document.querySelector("#all-posts-page").style.display = "none";
     document.querySelector("#profile-page").style.display = "block";
 
-    // Create header that displays the user's username
+    // Create a header that displays the user's username
     const h1 = document.createElement("h1");
-    h1.innerHTML = `<h1 class="section-title">${username}</h1>`;
+    h1.className = "section-title";
+    h1.innerHTML = username;
     document.querySelector("#profile-page").append(h1);
 
     // Show follower/following count
-
+    show_followers_and_following(username);
 
     // Show posts created by the user
     show_posts(`/posts/${username}`);
+}
+
+/**
+ * Displays the number of followers a user has and the number of people a user follows on their profile page
+ * @param {string} username the user's username
+ */
+function show_followers_and_following(username) {
+    // Retrieve user info
+    fetch(`/${username}`, {
+        method: "GET"
+    })
+
+    // Convert response to json
+    .then(function(response) {
+        return response.json();
+    })
+
+    // Log response to console
+    .then(function(response) {
+        console.log(response);
+        return response;
+    })
+
+    // Add followers and following count to page
+    .then(function(response) {
+        // Create div to contain followers and following count
+        const followers_and_following_div = document.createElement("div")
+        followers_and_following_div.id = "followers-and-following-container";
+        document.querySelector("#profile-page").append(followers_and_following_div);
+
+        show_followers_or_following(true, response["followers"]);
+        show_followers_or_following(false, response["following"]);
+    })
+
+    // Catch any errors and log them to console
+    .catch(function(err) {
+        console.log(err);
+    })
+}
+
+/**
+ * Displays the number of followers a user has or the number of people a user follows on their profile page
+ * @param {boolean} whichOne if true, display number of followers; otherwise display number of people a user follows 
+ * @param {integer} count the number of people following a user or the number of people a user follows
+ */
+function show_followers_or_following(whichOne, count) {
+    const div = document.createElement("div");
+    let header;
+
+    if (whichOne) {
+        header = "followers";
+    } else {
+        header = "following";
+    }
+
+    div.id = `${header}-container`;
+    div.innerHTML = `
+        <h5 class="followers-or-following-header">${header}</h5>
+        <p class="followers-or-following-count">${count}</p>
+    `;
+
+    document.querySelector("#followers-and-following-container").append(div);
 }
 
 /**
