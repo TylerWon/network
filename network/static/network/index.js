@@ -54,13 +54,157 @@ function show_profile_page(username) {
     const h1 = document.createElement("h1");
     h1.className = "section-title";
     h1.innerHTML = username;
-    document.querySelector("#profile-page").append(h1);
+    document.querySelector("#username-container").append(h1);
+
+    // Show follow/unfollow button
+    show_follow_or_unfollow_button(username);
 
     // Show follower/following count
     show_followers_and_following(username);
 
     // Show posts created by the user
     show_posts(`/posts/${username}`);
+}
+
+/**
+ * Displays a button to follow or unfollow a user
+ * @param {string} user_to_follow_or_unfollow the user's username
+ */
+function show_follow_or_unfollow_button(user_to_follow_or_unfollow) {
+    // // If the user is viewing their own profile page, do not display follow/unfollow button
+    // const button = document.querySelector("#follow-or-unfollow-button");
+    // let logged_in_user;
+
+    // if (button != null) {
+    //     logged_in_user = button.dataset.user;
+
+    //     if (user_to_follow_or_unfollow == logged_in_user) {
+    //         button.style.display = "none";
+    //         return;
+    //     }
+    // }
+
+    const button = document.querySelector("#follow-or-unfollow-button")
+    const logged_in_user = button.dataset.user;
+
+    // Set button to follow or unfollow depending on if the logged in user is following the user to follow or unfollow
+    fetch(`/${logged_in_user}`, {
+        method: "GET"
+    })
+
+    // Convert response to json
+    .then(function(response) {
+        return response.json();
+    })
+
+    // Log response to console
+    .then(function(response) {
+        console.log(response);
+        return response;
+    })
+
+    // Set button value (i.e. what the button displays) to "follow" or "unfollow"
+    .then(function(response) {
+        const logged_in_user_following_list = response["following"]
+
+        if (following(user_to_follow_or_unfollow, logged_in_user_following_list)) {
+            button.innerHTML = "unfollow";
+        } else {
+            button.innerHTML = "follow";
+        }
+    })
+
+    // Add functionality to the button so user to follow or unfollow is followed/unfolowed when clicked
+    .then(function() {
+        button.onclick = function() {
+            follow_or_unfollow_user(user_to_follow_or_unfollow, logged_in_user);
+        }
+    })
+
+    // Catch any errors and log them to console
+    .catch(function(err) {
+        console.log(err);
+    })
+}
+
+/**
+ * Return true if a username is in users, otherwise return false
+ * @param {string} username the username of a user
+ * @param {array} users the names of various users
+ * @returns {boolean}
+ */
+function following(username, users) {
+    for (let i = 0; i < users.length; i++) {
+        user = users[i];
+        if (user == username) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Follow or unfollow a user
+ * @param {string} user_to_follow_or_unfollow the user's username
+ * @param {string} logged_in_user the username of the user that is logged in
+ */
+function follow_or_unfollow_user(user_to_follow_or_unfollow, logged_in_user) {
+    // Determine if user should be followed or unfollowed
+    let button = document.querySelector("#follow-or-unfollow-button");
+    let follow;
+
+    if (button.innerHTML == "follow") {
+        follow = true;
+    } else {
+        follow = false;
+    }
+
+    // Follow/unfollow user
+    fetch(`/${logged_in_user}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({
+            follow: follow,
+            user: user_to_follow_or_unfollow
+        })
+    })
+
+    // Convert response to json
+    .then(function(response) {
+        return response.json();
+    })
+
+    // Log response to console
+    .then(function(response) {
+        console.log(response);
+    })
+
+    // Update button name
+    .then(function() {
+        if (follow) {
+            button.innerHTML  = "unfollow";
+        } else {
+            button.innerHTML  = "follow";
+        }
+    })
+
+    // Clear followers/following count, then update them
+    .then(function() {
+        document.querySelector("#followers-and-following-container").innerHTML = "";
+        show_followers_and_following(logged_in_user);
+    })
+    
+    // Catch any errors and log them to console
+    .catch(function(err) {
+        console.log(err);
+    })
+
+    // Prevent default submission
+    return false;
 }
 
 /**
@@ -86,11 +230,6 @@ function show_followers_and_following(username) {
 
     // Add followers and following count to page
     .then(function(response) {
-        // Create div to contain followers and following count
-        const followers_and_following_div = document.createElement("div")
-        followers_and_following_div.id = "followers-and-following-container";
-        document.querySelector("#profile-page").append(followers_and_following_div);
-
         show_followers_or_following(true, response["followers"].length);
         show_followers_or_following(false, response["following"].length);
     })

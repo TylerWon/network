@@ -20,7 +20,17 @@
         {% endif %}
     </div>
 
-    <div id="profile-page"></div>
+    <div id="profile-page">
+        <div id="username-and-follow-or-unfollow-button-container">
+            <span id="username-container"></span>
+            <span id="follow-or-unfollow-button-container">
+                {% if user.is_authenticated %}
+                    <button id="follow-or-unfollow-button" class="btn btn-primary" data-user="{{ user.username }}"></button>
+                {% endif %}
+            </span>
+        </div>
+        <div id="followers-and-following-container"></div>
+    </div>
     
     <div id="posts"></div>
 {% endblock %}

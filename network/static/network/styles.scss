@@ -38,6 +38,14 @@ grey-border {
     width: 50%;
 }
 
+#username-container {
+    display: inline-block;
+}
+
+#follow-or-unfollow-button-container {
+    display: inline-block;
+}
+
 .post-container {
     @extend grey-border;
 
