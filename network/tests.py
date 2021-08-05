@@ -304,3 +304,43 @@ class ClientTest(TestCase):
         self.assertEqual(len(data["followers"]), 1)
         self.assertEqual(len(data["following"]), 0)
     
+    # Test that nothing happens when user trying to be followed/unfollowed does not exist
+    def test_user_user_to_follow_or_unfollow_does_not_exist(self):
+        response = self.client.put("/user1", {
+            "follow": False,
+            "user": "user2"
+        }, "application/json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "User that is trying to be followed/unfollowed does not exist.")
+    
+    # Test that user is followed
+    def test_user_user_is_followed(self):
+        user1 = User.objects.get(username="user1")
+        user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
+        
+        response = self.client.put("/user1", {
+            "follow": True,
+            "user": "user2"
+        }, "application/json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["message"], "user1 is now following user2")
+        self.assertEqual(user1.following.count(), 1)
+        self.assertEqual(user2.followers.count(), 1)
+
+    # Test that user is unfollowed
+    def test_user_user_is_unfollowed(self):
+        user1 = User.objects.get(username="user1")
+        user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
+        user1.followers.add(user2)
+        
+        response = self.client.put("/user1", {
+            "follow": False,
+            "user": "user2"
+        }, "application/json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["message"], "user1 is no longer following user2")
+        self.assertEqual(user1.following.count(), 0)
+        self.assertEqual(user2.followers.count(), 0)
