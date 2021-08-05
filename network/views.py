@@ -106,14 +106,40 @@ def user_posts(request, username):
     posts = Post.objects.filter(poster=user).order_by("-timestamp")
     return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
 
-# API route: GET = retrieve info about a user
+# API route: GET = retrieve info about a user, PUT = follow or unfollow a user
 def user(request, username):
-    if request.method != "GET":
-        return JsonResponse({"message": "GET request required."}, status=400)
-    
     try:
         user = User.objects.get(username=username)
     except:
         return JsonResponse({"message": "User does not exist."}, status=400) 
+
+    if request.method == "GET":
+        return JsonResponse(user.serialize(), status=200, safe=False)
     
-    return JsonResponse(user.serialize(), status=200, safe=False)
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        follow = data.get("follow")
+        username_of_user_to_follow_or_unfollow = data.get("user")
+
+        try:
+            user_to_follow_or_unfollow = User.objects.get(username=username_of_user_to_follow_or_unfollow)
+        except:
+            return JsonResponse({"message": "User that is trying to be followed/unfollowed does not exist."}, status=400)
+
+        if follow:
+            user.following.add(user_to_follow_or_unfollow)
+            message = f"{username} is now following {username_of_user_to_follow_or_unfollow}"
+        else:
+            user.following.remove(user_to_follow_or_unfollow)
+            message = f"{username} is no longer following {username_of_user_to_follow_or_unfollow}"
+        
+        user.save()
+
+        return JsonResponse({"message": message}, status=201)
+
+    else:
+        return JsonResponse({"message": "GET request required."}, status=400)
+    
+
+    
+   

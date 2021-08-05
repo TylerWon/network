@@ -9,8 +9,8 @@ class User(AbstractUser):
         return {
             "username": self.username,
             "email": self.email,
-            "followers": self.followers.count(),
-            "following": self.following.count()
+            "followers": [follower.username for follower in self.followers.all()],
+            "following": [followee.username for followee in self.following.all()]
         }
 
 # Represents data for a Post in the Post table of the database

@@ -282,13 +282,6 @@ class ClientTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET request required.")
 
-    # Test that nothing happens when request is PUT
-    def test_user_request_method_is_put(self):
-        response = self.client.put("/user1")
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["message"], "GET request required.")
-
     # Test that nothing happens when user does not exist
     def test_user_user_does_not_exist(self):
         response = self.client.get("/user2")
@@ -308,5 +301,6 @@ class ClientTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["username"], "user1")
         self.assertEqual(data["email"], "user1@gmail.com")
-        self.assertEqual(data["followers"], 1)
-        self.assertEqual(data["following"], 0)
+        self.assertEqual(len(data["followers"]), 1)
+        self.assertEqual(len(data["following"]), 0)
+    

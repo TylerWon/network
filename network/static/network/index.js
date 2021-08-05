@@ -91,8 +91,8 @@ function show_followers_and_following(username) {
         followers_and_following_div.id = "followers-and-following-container";
         document.querySelector("#profile-page").append(followers_and_following_div);
 
-        show_followers_or_following(true, response["followers"]);
-        show_followers_or_following(false, response["following"]);
+        show_followers_or_following(true, response["followers"].length);
+        show_followers_or_following(false, response["following"].length);
     })
 
     // Catch any errors and log them to console
