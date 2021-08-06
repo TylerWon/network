@@ -2,8 +2,6 @@ from django.test import Client, TestCase
 
 from .models import User, Post, Like
 
-# Create your tests here.
-
 # Test class for models
 class ModelTest(TestCase):
     # Setup test database with data

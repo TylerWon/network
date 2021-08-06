@@ -1,13 +1,22 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Show all posts page only initially
+    // Show all posts page only
     document.querySelector("#all-posts-page").style.display = "block";
     document.querySelector("#profile-page").style.display = "none";
+    document.querySelector("#following-page").style.display = "none";
 
     // Show profile page when link is clicked
     if (document.querySelector("#profile-page-link") != null) {
         username = document.querySelector("#profile-page-link").innerHTML;
         document.querySelector("#profile-page-link").onclick = function()  {
             show_profile_page(username);
+        }
+    }
+
+    // Show following page when link is clicked
+    if (document.querySelector("#following-page-link") != null) {
+        username = document.querySelector("#profile-page-link").innerHTML;
+        document.querySelector("#following-page-link").onclick = function()  {
+            show_following_page(username);
         }
     }
 
@@ -49,6 +58,7 @@ function show_profile_page(username) {
     // Show profile page only
     document.querySelector("#all-posts-page").style.display = "none";
     document.querySelector("#profile-page").style.display = "block";
+    document.querySelector("#following-page").style.display = "none";
 
     // Create a header that displays the user's username
     show_profile_page_header(username);
@@ -274,6 +284,20 @@ function show_followers_or_following(whichOne, count) {
 }
 
 /**
+ * Displays a page of all the posts made by people a user follows
+ * @param {string} username the user's username
+ */
+function show_following_page(username) {
+    // Show following page only
+    document.querySelector("#all-posts-page").style.display = "none";
+    document.querySelector("#profile-page").style.display = "none";
+    document.querySelector("#following-page").style.display = "block";
+    
+    // Show posts
+    show_posts(`/posts/${username}/following`)
+}
+
+/**
  * Creates a new post
  */
 function create_post() {
@@ -321,7 +345,7 @@ function create_post() {
 
 /**
  * Displays posts on a page
- * @param {string} route the API route to use
+ * @param {string} route the "/posts" API route to use
  */
 function show_posts(route) {
     // Retrieve posts
