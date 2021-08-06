@@ -203,7 +203,7 @@ function follow_or_unfollow_user(user_to_follow_or_unfollow, logged_in_user) {
 
     // Update followers/following count
     .then(function() {
-        show_followers_and_following(logged_in_user);
+        show_followers_and_following(user_to_follow_or_unfollow);
     })
     
     // Catch any errors and log them to console
@@ -348,6 +348,15 @@ function show_posts(route) {
         })
     })
 
+    // Display profile page when poster's username is clicked
+    .then(function() {
+        document.querySelectorAll(".post-poster").forEach(function(poster) {
+            poster.onclick = function() {
+                show_profile_page(poster.innerHTML);
+            }
+        })
+    })
+
     // Catch any errors and log them console
     .catch(function(err) {
         console.log(err);
@@ -363,7 +372,7 @@ function show_post(post) {
     
     post_div.className = "post-container";
     post_div.innerHTML = `
-        <h6 class="post-poster">${post.poster}</h6>
+        <a class="post-poster" href="#">${post.poster}</a>
         <p>${post.content}</p>
         <p class="post-timestamp">${post.timestamp}</p>
     `;
