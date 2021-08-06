@@ -139,7 +139,20 @@ def user(request, username):
 
     else:
         return JsonResponse({"message": "GET request required."}, status=400)
-    
 
+# API route: GET = retrieves all posts made by the people a user follows
+@login_required
+def user_following_posts(request, username):
+    if request.method != "GET":
+        return JsonResponse({"message": "GET request required."}, status=400)
     
+    try: 
+        user = User.objects.get(username=username)
+    except:
+        return JsonResponse({"message": "User does not exist."}, status=400)
+    
+    following = user.following.all()
+    posts = Post.objects.filter(user__in = following)
+    
+    return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
    
