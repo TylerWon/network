@@ -55,7 +55,7 @@ class ClientTest(TestCase):
         user1 = User.objects.create(username="user1", password="user1", email="user1@gmail.com")
 
     # index View Tests
-    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # Test that index page renders
     def test_index(self):
         response = self.client.get("/")
@@ -63,7 +63,7 @@ class ClientTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     # login View Tests
-    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # Test that login page renders
     def test_login(self):
         response = self.client.get("/login")
@@ -110,7 +110,7 @@ class ClientTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
     # logout View Tests
-    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # Test that user is logged out
     def test_logout(self):
         user = User.objects.get(username="user1")
@@ -121,7 +121,7 @@ class ClientTest(TestCase):
         self.assertEquals(response.status_code, 302)
 
     # register View Tests
-    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # Test that register page renders
     def test_register(self):
         response = self.client.get("/register")
@@ -214,7 +214,7 @@ class ClientTest(TestCase):
         self.assertEqual(response.json()["message"], "GET or POST request required.")
 
     # user_posts View Tests
-    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # Test that nothing happens when request is POST
     def test_user_posts_request_method_is_post(self):
         user = User.objects.get(username="user1")
@@ -274,7 +274,7 @@ class ClientTest(TestCase):
         self.assertEqual(data[1]["content"], "This is my first post!")
     
     # user View Tests
-    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------
     # Test that nothing happens when request is POST
     def test_user_request_method_is_post(self):
         response = self.client.post("/user1")
@@ -344,3 +344,87 @@ class ClientTest(TestCase):
         self.assertEqual(response.json()["message"], "user1 is no longer following user2")
         self.assertEqual(user1.following.count(), 0)
         self.assertEqual(user2.followers.count(), 0)
+
+    # user_following_posts View Tests
+    # ---------------------------------------------------------------------------------------------
+    # Test that nothing happens when request is POST
+    def test_user_following_posts_request_method_is_post(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.post("/posts/user1/following")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+    
+    # Test that nothing happens when request is PUT
+    def test_user_following_posts_request_method_is_put(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.put("/posts/user1/following")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+    
+    # Test that nothing happens when user does not exist
+    def test_user_following_posts_user_does_not_exist(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.get("/posts/user2/following")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "User does not exist.")
+    
+    # Test that zero posts are retrieved when a user does not follow anyone
+    def test_user_following_posts_follows_no_one(self):
+        user = User.objects.get(username="user1")
+        self.client.force_login(user)
+
+        response = self.client.get("/posts/user1/following")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 0)
+
+    # Test that zero posts are retrieved when people a user follows do not have any posts
+    def test_user_following_posts_get_nothing(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
+        user3 = User.objects.create(username="user3", password="user3", email="user3@gmail.com")
+        user2.followers.add(user1)
+        user3.followers.add(user1)
+        user2.save()
+        user3.save()
+
+        response = self.client.get("/posts/user1/following")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 0)
+  
+    # Test that posts are retrieved when people a user follows have posts
+    def test_user_following_posts_get_many(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
+        user3 = User.objects.create(username="user3", password="user3", email="user3@gmail.com")
+        user2.followers.add(user1)
+        user3.followers.add(user1)
+        user2.save()
+        user3.save()
+
+        Post.objects.create(poster=user2, content="user2 post")
+        Post.objects.create(poster=user3, content="user3 post")
+
+        response = self.client.get("/posts/user1/following")
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+        self.assertEqual(data[0]["poster"], "user2")
+        self.assertEqual(data[0]["content"], "user2 post")
+        self.assertEqual(data[1]["poster"], "user3")
+        self.assertEqual(data[1]["content"], "user3 post")

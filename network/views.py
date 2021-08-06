@@ -152,7 +152,7 @@ def user_following_posts(request, username):
         return JsonResponse({"message": "User does not exist."}, status=400)
     
     following = user.following.all()
-    posts = Post.objects.filter(user__in = following)
+    posts = Post.objects.filter(poster__in = following)
     
     return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
    
