@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelector("#new-post-form").onsubmit = create_post;
     }
 
-    show_posts("/posts");
+    show_posts("/posts", 1);
 })
 
 const csrftoken = getCookie("csrftoken");
@@ -70,7 +70,7 @@ function show_profile_page(username) {
     show_followers_and_following(username);
 
     // Show posts created by the user
-    show_posts(`/posts/${username}`);
+    show_posts(`/posts/${username}`, 1);
 }
 
 /**
@@ -294,7 +294,7 @@ function show_following_page(username) {
     document.querySelector("#following-page").style.display = "block";
     
     // Show posts
-    show_posts(`/posts/${username}/following`)
+    show_posts(`/posts/${username}/following`, 1)
 }
 
 /**
@@ -328,7 +328,7 @@ function create_post() {
 
     // Load posts again so new post appears
     .then(function() {
-        show_posts("/posts");
+        show_posts("/posts", 1);
     })
 
     // Catch any errors and log them to console
@@ -344,10 +344,11 @@ function create_post() {
 }
 
 /**
- * Displays posts on a page
+ * Displays 10 posts
  * @param {string} route the "/posts" API route to use
+ * @param {integer} group the group of 10 posts to display (ex. group = 1 = the first 10 posts, group = 2 = the next 10 posts, etc.)
  */
-function show_posts(route) {
+function show_posts(route, group) {
     // Retrieve posts
     fetch(route, {
         method: "GET"
@@ -367,9 +368,22 @@ function show_posts(route) {
     // Clear posts that are being displayed then iterate through posts, adding them to the page
     .then(function(posts) {
         document.querySelector("#posts").innerHTML = "";
-        posts.forEach(function(post) {
-            show_post(post);
-        })
+
+        const first = (group - 1) * 10  // index of the first post (in the group) in posts
+        for (let i = first; i < posts.length && i < first + 10; i++) {
+            show_post(posts[i]);
+        }
+
+        return Math.ceil(posts.length / 10);
+    })
+
+    // Clear old post navigation bar and display a new one if there is at least one group
+    .then(function(num_groups) {
+        document.querySelector("#post-navigation-options").innerHTML = "";
+
+        if (num_groups > 0) {
+            show_post_navigation_bar(route, num_groups, group);
+        }
     })
 
     // Display profile page when poster's username is clicked
@@ -402,4 +416,73 @@ function show_post(post) {
     `;
 
     document.querySelector("#posts").append(post_div);       
+}
+
+/**
+ * Displays navigation bar that allows a user to move between groups of posts
+ * @param {string} route the "/posts" API route to use
+ * @param {integer} num_groups the number of groups of posts in total
+ * @param {integer} group the group of 10 posts being displayed currently
+ */
+function show_post_navigation_bar(route, num_groups, group) {
+    // Create "previous" button, disable if the first group of posts is being displayed
+    create_post_navigation_bar_option("post-navigation-previous", "previous");
+    if (group == 1) {
+        document.querySelector("#post-navigation-previous").className = "page-item disabled";
+    }
+
+    // Create "group" buttons, set button of current group being displayed as active
+    for (let i = 1; i <= num_groups; i++) {
+        create_post_navigation_bar_option(`group-${i}`, `${i}`);
+
+        if (i == group) {
+            document.querySelector(`#group-${i}`).className = "page-item active";
+        }
+    }
+
+    // Create "next" button, disable if the last group of posts is being displayed
+    create_post_navigation_bar_option("post-navigation-next", "next");
+    if (group == num_groups) {
+        document.querySelector("#post-navigation-next").className = "page-item disabled";
+    }
+
+    // Add functionality to navigation bar
+    document.querySelectorAll(".page-item").forEach(function(option) {
+        // If option is "previous" and it is not disabled, show posts from the previous group when clicked
+        if (option.id == "post-navigation-previous" && option.className == "page-item") {
+            option.firstChild.onclick = function() {
+                show_posts(route, group - 1);
+            }
+        }
+
+        // Else if option is "next" and it is not disabled, show posts from the next group when clicked
+        else if (option.id == "post-navigation-next" && option.className == "page-item") {
+            option.firstChild.onclick = function() {
+                show_posts(route, group + 1);
+            }
+        }
+
+        // Else show posts from the group that was clicked
+        else {
+            const group_clicked = parseInt(option.firstChild.innerHTML);
+            option.firstChild.onclick = function() {
+                show_posts(route, group_clicked);
+            }   
+        }
+    })
+}
+
+/**
+ * Creates an option for the post navigation bar
+ * @param {string} id the CSS id for the option
+ * @param {string} name the name of the option
+ */
+function create_post_navigation_bar_option(id, name) {
+    const option = document.createElement("li");
+
+    option.id = id;
+    option.className = "page-item";
+    option.innerHTML = `<a class="page-link" href="#">${name}</a>`;
+
+    document.querySelector("#post-navigation-options").append(option);
 }

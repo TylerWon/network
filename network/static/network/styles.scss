@@ -46,6 +46,10 @@ grey-border {
     display: inline-block;
 }
 
+#post-navigation {
+    margin: 15px;
+}
+
 .post-container {
     @extend grey-border;
 

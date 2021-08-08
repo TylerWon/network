@@ -42,6 +42,10 @@ grey-border, .post-container, #followers-and-following-container, #new-post-cont
   display: inline-block;
 }
 
+#post-navigation {
+  margin: 15px;
+}
+
 .post-container {
   border-radius: 5px;
   margin: 15px;
