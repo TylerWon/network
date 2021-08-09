@@ -371,7 +371,7 @@ function show_posts(route, group) {
 
         const first = (group - 1) * 10  // index of the first post (in the group) in posts
         for (let i = first; i < posts.length && i < first + 10; i++) {
-            show_post(posts[i]);
+            show_post(route, posts[i]);
         }
 
         return Math.ceil(posts.length / 10);
@@ -403,9 +403,10 @@ function show_posts(route, group) {
 
 /**
  * Displays a post on a page
- * @param {object} post object that contains info about a post
+ * @param {string} route the "/posts" API route that was used to get the post's info
+ * @param {Object} post object that contains info about a post
  */
-function show_post(post) {
+function show_post(route, post) {
     const post_div = document.createElement("div");
     
     post_div.className = "post-container";
@@ -415,7 +416,94 @@ function show_post(post) {
         <p class="post-timestamp">${post.timestamp}</p>
     `;
 
+    // If poster matches the user that is logged in, add "edit" button to post
+    if (document.querySelector("#profile-page-link") != null) {
+        const logged_in_user = document.querySelector("#profile-page-link").innerHTML;
+
+        if (logged_in_user == post.poster) {
+            const edit_link = document.createElement("a");
+            edit_link.id = "post-edit";
+            edit_link.href = "#";
+            edit_link.innerHTML = "edit";
+            
+            post_div.append(edit_link);
+
+            // Add functionality to edit button
+            edit_link.onclick = function() {
+                edit_post(route, post, post_div);
+            }
+        }
+    }
+
     document.querySelector("#posts").append(post_div);       
+}
+
+/**
+ * Allows a user to edit a post
+ * @param {string} route the "/posts" API route that was used to get the post's info
+ * @param {Object} post object that contains info about a post
+ * @param {Element} post_div HTML element that contains the post
+ */
+function edit_post(route, post, post_div) {
+    // Display a form that allows a user to edit a post's content
+    post_div.innerHTML = `
+        <a class="post-poster" href="#">${post.poster}</a>
+        <form id="post-edit-form">
+            <textarea id="edited-post-content">${post.content}</textarea>
+            <input class="btn btn-primary" type="submit" value="save">
+        </form>
+        <p class="post-timestamp">${post.timestamp}</p>
+    `
+
+    // Save edits to a post when "save" button is clicked
+    document.querySelector("#post-edit-form").onsubmit = function() {
+        const new_content = document.querySelector("#edited-post-content").value;
+        update_post(route, post.id, new_content);
+    }
+}
+
+/**
+ * Updates the content of a post
+ * @param {string} route the "/posts" API route that was used to get the post's info
+ * @param {integer} id the id of the post
+ * @param {string} content the post's new content
+ */
+function update_post(route, id, content) {
+    // Update post
+    fetch(`/posts/${id}/update`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({
+            content: content
+        })
+    })
+
+    // Convert response to json
+    .then(function(response) {
+        return response.json();
+    })
+
+    // Log response to console
+    .then(function(response) {
+        window.alert(response.message);
+        console.log(response);
+    })
+
+    // Load posts again so new post appears
+    .then(function() {
+        show_posts(route, 1);
+    })
+
+    // Catch any errors and log them to console
+    .catch(function(err) {
+        console.log(err);
+    })
+
+    // Prevent default submission
+    return false;
 }
 
 /**

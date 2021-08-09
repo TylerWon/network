@@ -184,11 +184,16 @@ def update_post(request, post_id):
     # Update content of a post
     if data.get("content") is not None:
         # If the user that made the request is not the post's poster, do nothing
-        # Otherwise, update the content of the post
         if request.user != post.poster:
             return JsonResponse({"message": "You do not have access to edit this post."}, status=404)
         
-        post.content = data.get("content").strip()
+        content = data.get("content").strip()
+
+        # If the content of the post is empty, do nothing
+        if content == "":
+            return JsonResponse({"message": "Post cannot be empty."}, status=400)
+        
+        post.content = content
         message = "Content of post successfully updated."
     
     post.save()

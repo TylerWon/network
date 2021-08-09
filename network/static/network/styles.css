@@ -46,6 +46,14 @@ grey-border, .post-container, #followers-and-following-container, #new-post-cont
   margin: 15px;
 }
 
+#edited-post-content {
+  border: 1px solid lightgrey;
+  padding: 7px 13px;
+  border-radius: 5px;
+  margin: 3px 0px;
+  width: 100%;
+}
+
 .post-container {
   border-radius: 5px;
   margin: 15px;
