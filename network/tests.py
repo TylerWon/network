@@ -426,3 +426,62 @@ class ClientTest(TestCase):
         self.assertEqual(data[0]["content"], "user3 post")
         self.assertEqual(data[1]["poster"], "user2")
         self.assertEqual(data[1]["content"], "user2 post")
+
+    # update_post View Tests
+    # ---------------------------------------------------------------------------------------------
+    # Test that nothing happens when request is GET
+    def test_update_post_request_method_is_get(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        response = self.client.get("/posts/1/update")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "PUT request required.")
+
+
+    # Test that nothing happens when request is POST
+    def test_update_post_request_method_is_post(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        response = self.client.post("/posts/1/update")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "PUT request required.")
+
+    # Test that nothing happens when post does not exist
+    def test_update_post_post_does_not_exist(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        response = self.client.put("/posts/1/update", {"content": "updated content"}, "application/json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "Post does not exist.")
+
+
+    # Test that nothing happens when user that made the request is not the post's poster
+    def test_update_post_request_user_is_not_the_poster(self):
+        user1 = User.objects.get(username="user1")
+        user2 = User.objects.create(username="user2", password="user2", email="user2@gmail.com")
+        self.client.force_login(user1)
+
+        Post.objects.create(poster=user2, content="original content")
+
+        response = self.client.put("/posts/1/update", {"content": "updated content"}, "application/json")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["message"], "You do not have access to edit this post.")
+
+    # Test that the content of the post is updated
+    def test_update_post_post_content_updated(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        Post.objects.create(poster=user1, content="original content")
+
+        response = self.client.put("/posts/1/update", {"content": "updated content"}, "application/json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["message"], "Content of post successfully updated.")

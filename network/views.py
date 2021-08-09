@@ -177,20 +177,21 @@ def update_post(request, post_id):
     try:
         post = Post.objects.get(id=post_id)
     except:
-        return JsonResponse({"message": "Post does not exist."})
-    
-    # If the user that made the request is not the same as the user who made the post, do nothing
-    if request.user != post.poster:
-        return JsonResponse({"message": "You do not have access to edit this post."}, status=404)
+        return JsonResponse({"message": "Post does not exist."}, status=400)
     
     data = json.loads(request.body)
     
     # Update content of a post
     if data.get("content") is not None:
+        # If the user that made the request is not the post's poster, do nothing
+        # Otherwise, update the content of the post
+        if request.user != post.poster:
+            return JsonResponse({"message": "You do not have access to edit this post."}, status=404)
+        
         post.content = data.get("content").strip()
         message = "Content of post successfully updated."
     
     post.save()
 
-    return JsonResponse({"message": message})
+    return JsonResponse({"message": message}, status=201)
     
