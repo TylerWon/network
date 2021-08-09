@@ -422,7 +422,7 @@ class ClientTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 2)
-        self.assertEqual(data[0]["poster"], "user2")
-        self.assertEqual(data[0]["content"], "user2 post")
-        self.assertEqual(data[1]["poster"], "user3")
-        self.assertEqual(data[1]["content"], "user3 post")
+        self.assertEqual(data[0]["poster"], "user3")
+        self.assertEqual(data[0]["content"], "user3 post")
+        self.assertEqual(data[1]["poster"], "user2")
+        self.assertEqual(data[1]["content"], "user2 post")

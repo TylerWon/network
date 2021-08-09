@@ -83,7 +83,7 @@ def posts(request):
 
         return JsonResponse({"message": "Post created successfully."}, status=201)
     
-    # Retrieve all posts
+    # Return all posts
     elif request.method == "GET":
         posts = Post.objects.all().order_by("-timestamp")
         return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
@@ -95,27 +95,33 @@ def posts(request):
 # API route: GET = retrieves all posts created by a user
 @login_required
 def user_posts(request, username):
+    # If request is not GET, do nothing
     if request.method != "GET":
         return JsonResponse({"message": "GET request required."}, status=400)
     
+    # Get user with username=usernamee
     try:
         user = User.objects.get(username=username)
     except:
         return JsonResponse({"message": "User does not exist."}, status=400) 
     
+    # Return posts created by a user in reverse chronological order
     posts = Post.objects.filter(poster=user).order_by("-timestamp")
     return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
 
 # API route: GET = retrieve info about a user, PUT = follow or unfollow a user
 def user(request, username):
+    # Get user with username=username
     try:
         user = User.objects.get(username=username)
     except:
         return JsonResponse({"message": "User does not exist."}, status=400) 
 
+    # Return info about a user
     if request.method == "GET":
         return JsonResponse(user.serialize(), status=200, safe=False)
     
+    # Update follower/following for a user
     elif request.method == "PUT":
         data = json.loads(request.body)
         follow = data.get("follow")
@@ -137,22 +143,54 @@ def user(request, username):
 
         return JsonResponse({"message": message}, status=201)
 
+    # Do nothing
     else:
         return JsonResponse({"message": "GET request required."}, status=400)
 
 # API route: GET = retrieves all posts made by the people a user follows
 @login_required
 def user_following_posts(request, username):
+    # If request is not GET, do nothing
     if request.method != "GET":
         return JsonResponse({"message": "GET request required."}, status=400)
     
+    # Get user with username=username
     try: 
         user = User.objects.get(username=username)
     except:
         return JsonResponse({"message": "User does not exist."}, status=400)
     
+    # Return all posts made by people a user follows in reverse chronological order
     following = user.following.all()
     posts = Post.objects.filter(poster__in = following).order_by("-timestamp")
     
     return JsonResponse([post.serialize() for post in posts], status=200, safe=False)
-   
+
+# API route: PUT = update the content or like count for a post
+@login_required
+def update_post(request, post_id):
+    # If request is not PUT, do nothing
+    if request.method != "PUT":
+        return JsonResponse({"message": "PUT request required."}, status=400)
+
+    # Get post with id=post_id
+    try:
+        post = Post.objects.get(id=post_id)
+    except:
+        return JsonResponse({"message": "Post does not exist."})
+    
+    # If the user that made the request is not the same as the user who made the post, do nothing
+    if request.user != post.poster:
+        return JsonResponse({"message": "You do not have access to edit this post."}, status=404)
+    
+    data = json.loads(request.body)
+    
+    # Update content of a post
+    if data.get("content") is not None:
+        post.content = data.get("content").strip()
+        message = "Content of post successfully updated."
+    
+    post.save()
+
+    return JsonResponse({"message": message})
+    
