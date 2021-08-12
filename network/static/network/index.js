@@ -70,7 +70,7 @@ function show_profile_page(username) {
     show_followers_and_following(username);
 
     // Show posts created by the user
-    show_posts(`/posts/${username}`, 1);
+    show_posts(`/posts/user/${username}`, 1);
 }
 
 /**
@@ -294,7 +294,7 @@ function show_following_page(username) {
     document.querySelector("#following-page").style.display = "block";
     
     // Show posts
-    show_posts(`/posts/${username}/following`, 1)
+    show_posts(`/posts/user/${username}/following`, 1)
 }
 
 /**
