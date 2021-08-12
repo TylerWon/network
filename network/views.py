@@ -195,8 +195,19 @@ def update_post(request, post_id):
         
         post.content = content
         message = "Content of post successfully updated."
-    
-    post.save()
 
+        post.save()
+    
+    # Update post's likes count
+    if data.get("like") is not None:
+        user = request.user
+        if data.get("like"):
+            like = Like.objects.create(post=post, liker=user)
+            message = f"Added like to post {post.id}."
+        else:
+            like = Like.objects.get(post=post, liker=user)
+            like.delete()
+            message = f"Removed like from post {post.id}."
+            
     return JsonResponse({"message": message}, status=201)
     

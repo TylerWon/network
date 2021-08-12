@@ -377,15 +377,6 @@ function show_posts(route, group) {
         return Math.ceil(posts.length / 10);
     })
 
-    // Clear old post navigation bar and display a new one if there is at least one group
-    .then(function(num_groups) {
-        document.querySelector("#post-navigation-options").innerHTML = "";
-
-        if (num_groups > 0) {
-            show_post_navigation_bar(route, num_groups, group);
-        }
-    })
-
     // Display profile page when poster's username is clicked
     .then(function() {
         document.querySelectorAll(".post-poster").forEach(function(poster) {
@@ -393,6 +384,15 @@ function show_posts(route, group) {
                 show_profile_page(poster.innerHTML);
             }
         })
+    })
+
+    // Clear old post navigation bar and display a new one if there is at least one group
+    .then(function(num_groups) {
+        document.querySelector("#post-navigation-options").innerHTML = "";
+
+        if (num_groups > 0) {
+            show_post_navigation_bar(route, num_groups, group);
+        }
     })
 
     // Catch any errors and log them console
@@ -417,7 +417,20 @@ function show_post(route, group, post) {
         <p class="post-timestamp">${post.timestamp}</p>
     `;
 
-    // If poster matches the user that is logged in, add "edit" link to post
+    // Add link to the post that allows poster to edit the post 
+    add_edit_link_to_post(route, group, post, post_div);
+
+    document.querySelector("#posts").append(post_div);       
+}
+
+/**
+ * Adds a link to a post that allows the poster to edit the post
+ * @param {string} route the "/posts" API route that was used to get the post's info
+ * @param {integer} group the group of 10 posts that this post belongs to
+ * @param {Object} post object that contains info about a post
+ * @param {Element} post_div HTML element that contains the post
+ */
+function add_edit_link_to_post(route, group, post, post_div) {
     if (document.querySelector("#profile-page-link") != null) {
         const logged_in_user = document.querySelector("#profile-page-link").innerHTML;
 
@@ -426,18 +439,16 @@ function show_post(route, group, post) {
             edit_link.id = "post-edit";
             edit_link.href = "#";
             edit_link.innerHTML = "edit";
-            
+
             post_div.append(edit_link);
 
             // Add functionality to edit link
-            edit_link.onclick = function(e) {
+            edit_link.onclick = function (e) {
                 e.preventDefault(); // Prevents window from scrolling automatically to the top
                 edit_post(route, group, post, post_div);
-            }
+            };
         }
     }
-
-    document.querySelector("#posts").append(post_div);       
 }
 
 /**
@@ -460,9 +471,9 @@ function edit_post(route, group, post, post_div) {
     `
 
     // Save edits to a post when "save" button is clicked
-    document.querySelector("#post-edit-form-save-button").onclick = function(e) {
+    document.querySelector("#post-edit-form-save-button").onclick = function() {
         const new_content = document.querySelector("#post-edit-form-content").value;
-        update_post(route, post.id, new_content);
+        update_post_content(route, post.id, new_content);
     }
 
     // Cancel edits to a post when "cancel" button is clicked
@@ -478,7 +489,7 @@ function edit_post(route, group, post, post_div) {
  * @param {integer} id the id of the post
  * @param {string} content the post's new content
  */
-function update_post(route, id, content) {
+function update_post_content(route, id, content) {
     // Update post
     fetch(`/posts/${id}/update`, {
         method: "PUT",
