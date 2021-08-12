@@ -527,41 +527,4 @@ class ClientTest(TestCase):
         self.assertEqual(response.json()["message"], "Removed like from post 1.")
         self.assertEqual(user1.likes.all().count(), 0)
         self.assertEqual(post.likes.all().count(), 0)
-
-    # single_post View Tests
-    # ---------------------------------------------------------------------------------------------
-    # Test that nothing happens when request is PUT
-    def test_single_post_request_method_is_get(self):
-        response = self.client.put("/posts/1")
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["message"], "GET request required.")
-
-
-    # Test that nothing happens when request is POST
-    def test_single_post_request_method_is_post(self):
-        response = self.client.post("/posts/1")
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["message"], "GET request required.")
-    
-    # Test that nothing happens when post does not exist
-    def test_single_post_post_does_not_exist(self):
-        response = self.client.get("/posts/1")
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["message"], "Post does not exist.")
-    
-    # Test that post is retrieved
-    def test_single_post_post_retrieved(self):
-        user1 = User.objects.get(username="user1")
-
-        Post.objects.create(poster=user1, content="content")
-
-        response = self.client.get("/posts/1")
-        data = response.json()
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["poster"], user1.username)
-        self.assertEqual(data["content"], "content")
     
