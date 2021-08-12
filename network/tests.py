@@ -218,7 +218,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.post("/posts/user1")
+        response = self.client.post("/posts/user/user1")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET request required.")
@@ -228,7 +228,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.put("/posts/user1")
+        response = self.client.put("/posts/user/user1")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET request required.")
@@ -238,7 +238,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.get("/posts/user2")
+        response = self.client.get("/posts/user/user2")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "User does not exist.")
@@ -248,7 +248,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.get("/posts/user1")
+        response = self.client.get("/posts/user/user1")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 0)
@@ -261,7 +261,7 @@ class ClientTest(TestCase):
         Post.objects.create(poster=user, content="This is my first post!")
         Post.objects.create(poster=user, content="This is my second post!")
 
-        response = self.client.get("/posts/user1")
+        response = self.client.get("/posts/user/user1")
         data = response.json()
 
         self.assertEqual(response.status_code, 200)
@@ -350,7 +350,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.post("/posts/user1/following")
+        response = self.client.post("/posts/user/user1/following")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET request required.")
@@ -360,7 +360,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.put("/posts/user1/following")
+        response = self.client.put("/posts/user/user1/following")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "GET request required.")
@@ -370,7 +370,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.get("/posts/user2/following")
+        response = self.client.get("/posts/user/user2/following")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["message"], "User does not exist.")
@@ -380,7 +380,7 @@ class ClientTest(TestCase):
         user = User.objects.get(username="user1")
         self.client.force_login(user)
 
-        response = self.client.get("/posts/user1/following")
+        response = self.client.get("/posts/user/user1/following")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 0)
@@ -397,7 +397,7 @@ class ClientTest(TestCase):
         user2.save()
         user3.save()
 
-        response = self.client.get("/posts/user1/following")
+        response = self.client.get("/posts/user/user1/following")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 0)
@@ -417,7 +417,7 @@ class ClientTest(TestCase):
         Post.objects.create(poster=user2, content="user2 post")
         Post.objects.create(poster=user3, content="user3 post")
 
-        response = self.client.get("/posts/user1/following")
+        response = self.client.get("/posts/user/user1/following")
         data = response.json()
 
         self.assertEqual(response.status_code, 200)
@@ -527,3 +527,41 @@ class ClientTest(TestCase):
         self.assertEqual(response.json()["message"], "Removed like from post 1.")
         self.assertEqual(user1.likes.all().count(), 0)
         self.assertEqual(post.likes.all().count(), 0)
+
+    # single_post View Tests
+    # ---------------------------------------------------------------------------------------------
+    # Test that nothing happens when request is PUT
+    def test_single_post_request_method_is_get(self):
+        response = self.client.put("/posts/1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+
+
+    # Test that nothing happens when request is POST
+    def test_single_post_request_method_is_post(self):
+        response = self.client.post("/posts/1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "GET request required.")
+    
+    # Test that nothing happens when post does not exist
+    def test_single_post_post_does_not_exist(self):
+        response = self.client.get("/posts/1")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "Post does not exist.")
+    
+    # Test that post is retrieved
+    def test_single_post_post_retrieved(self):
+        user1 = User.objects.get(username="user1")
+
+        Post.objects.create(poster=user1, content="content")
+
+        response = self.client.get("/posts/1")
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["poster"], user1.username)
+        self.assertEqual(data["content"], "content")
+    
