@@ -498,3 +498,32 @@ class ClientTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["message"], "Content of post successfully updated.")
         self.assertEqual(user1.posts.first().content, "updated content")
+    
+    # Test that a like is added to the post
+    def test_update_post_like_post(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        post = Post.objects.create(poster=user1, content="original content")
+
+        response = self.client.put("/posts/1/update", {"like": True}, "application/json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["message"], "Added like to post 1.")
+        self.assertEqual(user1.likes.first().post, post)
+        self.assertEqual(post.likes.first().liker, user1)
+
+    # Test that a like is removed from the post
+    def test_update_post_unlike_post(self):
+        user1 = User.objects.get(username="user1")
+        self.client.force_login(user1)
+
+        post = Post.objects.create(poster=user1, content="original content")
+        Like.objects.create(post=post, liker=user1)
+
+        response = self.client.put("/posts/1/update", {"like": False}, "application/json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["message"], "Removed like from post 1.")
+        self.assertEqual(user1.likes.all().count(), 0)
+        self.assertEqual(post.likes.all().count(), 0)
