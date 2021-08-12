@@ -67,6 +67,16 @@ grey-border, .post-container, #followers-and-following-container, #new-post-cont
   font-weight: 100;
 }
 
+.post-like-or-unlike-button {
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  margin-right: 10px;
+}
+
 .section-title {
   margin: 10px;
 }

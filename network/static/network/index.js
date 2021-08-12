@@ -147,7 +147,7 @@ function show_follow_or_unfollow_button(user_to_follow_or_unfollow) {
 }
 
 /**
- * Return true if a username is in users, otherwise return false
+ * Returns true if a username is in users, otherwise return false
  * @param {string} username the username of a user
  * @param {array} users the names of various users
  * @returns {boolean}
@@ -377,15 +377,6 @@ function show_posts(route, group) {
         return Math.ceil(posts.length / 10);
     })
 
-    // Display profile page when poster's username is clicked
-    .then(function() {
-        document.querySelectorAll(".post-poster").forEach(function(poster) {
-            poster.onclick = function() {
-                show_profile_page(poster.innerHTML);
-            }
-        })
-    })
-
     // Clear old post navigation bar and display a new one if there is at least one group
     .then(function(num_groups) {
         document.querySelector("#post-navigation-options").innerHTML = "";
@@ -393,6 +384,15 @@ function show_posts(route, group) {
         if (num_groups > 0) {
             show_post_navigation_bar(route, num_groups, group);
         }
+    })
+
+    // Display profile page when poster's username is clicked
+    .then(function() {
+        document.querySelectorAll(".post-poster").forEach(function(poster) {
+            poster.onclick = function() {
+                show_profile_page(poster.innerHTML);
+            }
+        })
     })
 
     // Catch any errors and log them console
@@ -417,10 +417,94 @@ function show_post(route, group, post) {
         <p class="post-timestamp">${post.timestamp}</p>
     `;
 
-    // Add link to the post that allows poster to edit the post 
+    // Add like/unlike button to the post
+    add_like_or_unlike_button_to_post(route, group, post, post_div);
+
+    // Add edit link to the post
     add_edit_link_to_post(route, group, post, post_div);
 
     document.querySelector("#posts").append(post_div);       
+}
+
+/**
+ * Adds a button to a post that allows the user to like/unlike the post
+ * @param {string} route the "/posts" API route that was used to get the post's info
+ * @param {integer} group the group of 10 posts that this post belongs to
+ * @param {Object} post object that contains info about a post
+ * @param {Element} post_div HTML element that contains the post
+ */
+function add_like_or_unlike_button_to_post(route, group, post, post_div) {
+    // If user is not logged in, do nothing
+    if (document.querySelector("#profile-page-link") == null) {
+        return;
+    }
+
+    // Otherwise, add like/unlike button to the post
+    const logged_in_user = document.querySelector("#profile-page-link").innerHTML;
+    const liked_post = post.likers.includes(logged_in_user);
+    const like_or_unlike_button = document.createElement("button");
+
+    like_or_unlike_button.className = "post-like-or-unlike-button";
+    if (liked_post) {
+        like_or_unlike_button.innerHTML = `
+            <span style="color: red"> 
+                <i class="fa fa-heart" aria-hidden="true"></i>
+            </span>
+        `
+    } else {
+        like_or_unlike_button.innerHTML = '<i class="fa fa-heart-o" aria-hidden="true"></i>';
+    }
+
+    post_div.append(like_or_unlike_button);
+
+    like_or_unlike_button.onclick = function(e) {
+        e.preventDefault(); // Prevents window from scrolling automatically to the top
+        update_post_likes(route, group, post.id, !liked_post);
+    }
+}
+
+/**
+ * Updates the like count on a post
+ * @param {string} route the "/posts" API route that was used to get the post's info
+ * @param {*} group the group of 10 posts this post belongs to
+ * @param {integer} id the id of the post
+ * @param {*} like true = like the post, false = unlike the post
+ */
+function update_post_likes(route, group, id, like) {
+    // Update post
+    fetch(`/posts/${id}/update`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({
+            like: like
+        })
+    })
+
+    // Convert response to json
+    .then(function(response) {
+        return response.json();
+    })
+
+    // Log response to console
+    .then(function(response) {
+        console.log(response);
+    })
+
+    // Load posts again so new post appears
+    .then(function() {
+        show_posts(route, group);
+    })
+
+    // Catch any errors and log them to console
+    .catch(function(err) {
+        console.log(err);
+    })
+
+    // Prevent default submission
+    return false;
 }
 
 /**
@@ -431,23 +515,27 @@ function show_post(route, group, post) {
  * @param {Element} post_div HTML element that contains the post
  */
 function add_edit_link_to_post(route, group, post, post_div) {
-    if (document.querySelector("#profile-page-link") != null) {
-        const logged_in_user = document.querySelector("#profile-page-link").innerHTML;
+    // If user is not logged in, do nothing
+    if (document.querySelector("#profile-page-link") == null) {
+        return;
+    }
 
-        if (logged_in_user == post.poster) {
-            const edit_link = document.createElement("a");
-            edit_link.id = "post-edit";
-            edit_link.href = "#";
-            edit_link.innerHTML = "edit";
+    // Otherwise, add edit link to the post if the poster and the logged in user are the same
+    const logged_in_user = document.querySelector("#profile-page-link").innerHTML;
 
-            post_div.append(edit_link);
+    if (logged_in_user == post.poster) {
+        const edit_link = document.createElement("a");
+        edit_link.id = "post-edit";
+        edit_link.href = "#";
+        edit_link.innerHTML = "edit";
 
-            // Add functionality to edit link
-            edit_link.onclick = function (e) {
-                e.preventDefault(); // Prevents window from scrolling automatically to the top
-                edit_post(route, group, post, post_div);
-            };
-        }
+        post_div.append(edit_link);
+
+        // Add functionality to edit link
+        edit_link.onclick = function (e) {
+            e.preventDefault(); // Prevents window from scrolling automatically to the top
+            edit_post(route, group, post, post_div);
+        };
     }
 }
 
