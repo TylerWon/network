@@ -211,3 +211,15 @@ def update_post(request, post_id):
             
     return JsonResponse({"message": message}, status=201)
     
+# API route: GET = retrieves a single post
+def single_post(request, post_id):
+    if request.method != "GET":
+        return JsonResponse({"message": "GET request required."}, status=400)
+    
+    # Get post with id=post_id
+    try:
+        post = Post.objects.get(id=post_id)
+    except:
+        return JsonResponse({"message": "Post does not exist."}, status=400)
+    
+    return JsonResponse(post.serialize(), status=200, safe=False)
