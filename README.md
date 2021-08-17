@@ -7,21 +7,21 @@ A social media platform that allows users to upload posts and interact with othe
 - Like content from other users
 
 ## API Documentation
-**GET /posts**: Get all posts
+`GET /posts`: Get all posts
 
-**GET /posts/user/{username}**: Get all posts from a user  
+`GET /posts/user/{username}`: Get all posts from a user  
 Path Parameters:
 - **username** (required)
     - Type: string
     - Description: the user's username
 
-**GET /posts/user/{username}/following**: Get all posts from the people a user follows  
+`GET /posts/user/{username}/following`: Get all posts from the people a user follows  
 Path Parameters:
 - **username** (required)
     - Type: string
     - Description: the user's username
 
-**PUT /posts/{post_id}/update**: Update a post  
+`PUT /posts/{post_id}/update`: Update a post  
 Path Parameters:
 - **post_id** (required)
     - Type: integer
@@ -35,19 +35,19 @@ Body Parameters:
     - Type: boolean
     - Description: true = increment likes on post by 1, false = decrement likes on post by 1
 
-**POST /posts**: Create a new post  
+`POST /posts`: Create a new post  
 Body Parameters:
 - **content** (required)
     - Type: string
     - Description: content of the post
 
-**GET /{username}**: Get info about a user  
+`GET /{username}`: Get info about a user  
 Path Parameters:
 - **username** (required)
     - Type: string
     - Description: the user’s username
 
-**PUT /{username}**: Update follow/following count for a user  
+`PUT /{username}`: Update follow/following count for a user  
 Path Parameters:
 - **follow** (required)
     - Type: boolean
